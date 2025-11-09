@@ -1,16 +1,23 @@
-# React + Vite
+# 📰 News Explorer
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Una aplicación web full-stack moderna para buscar y guardar noticias de todo el mundo. Desarrollada con React en el frontend y una API personalizada en el backend.
 
-Currently, two official plugins are available:
+## 🚀 Características
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+### Frontend
 
-## React Compiler
+- **Búsqueda en tiempo real** de noticias usando News API
+- **Interfaz responsive** diseñada con Figma
+- **Sistema de autenticación** con modales de Login y Registro
+- **Guardado de artículos** en perfil personal
+- **Navegación SPA** con React Router
+- **Diseño moderno** con componentes reutilizables
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## 🛠️ Tecnologías Utilizadas
 
-## Expanding the ESLint configuration
+### Frontend
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+- ![React](https://img.shields.io/badge/React-18.2.0-61DAFB?logo=react)
+- ![React Router](https://img.shields.io/badge/React_Router-7.9.5-CA4245?logo=reactrouter)
+- ![Vite](https://img.shields.io/badge/Vite-5.0.0-646CFF?logo=vite)
+- ![CSS3](https://img.shields.io/badge/CSS3-1572B6?logo=css3)
