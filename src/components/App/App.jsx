@@ -10,6 +10,8 @@ import Register from '../Register/Register';
 import SuccessPopup from '../SuccessPopup/SuccessPopup';
 import NewsCardList from '../NewsCardList/NewsCardList';
 import Preloader from '../Preloader/Preloader';
+import newsApi from '../../utils/NewsApi';
+import { ERROR_MESSAGES, LOCAL_STORAGE_KEYS, APP_CONFIG } from '../../utils/constants';
 import './App.css';
 import backgroundImage from '../../images/georgia-de-lotz--UsJoNxLaNo-unsplash.png';
 
@@ -17,6 +19,120 @@ function App() {
   const [activeModal, setActiveModal] = React.useState(null);
   const [isLoading, setIsLoading] = React.useState(false);
   const [searchResults, setSearchResults] = React.useState(null);
+  const [searchError, setSearchError] = React.useState(null);
+  const [displayedArticles, setDisplayedArticles] = React.useState([]);
+  const [currentSearchQuery, setCurrentSearchQuery] = React.useState('');
+  const [savedArticles, setSavedArticles] = React.useState([]);
+
+  const handleSearch = async (searchTerm) => {
+    if (!searchTerm.trim()) {
+      setSearchError(ERROR_MESSAGES.EMPTY_SEARCH);
+      return;
+    }
+
+    setIsLoading(true);
+    setSearchError(null);
+    setCurrentSearchQuery(searchTerm);
+    setSearchResults(null);
+    setDisplayedArticles([]);
+
+    try {
+      console.log(`Buscando: "${searchTerm}"`);
+      const result = await newsApi.searchNews(searchTerm);
+      console.log(`Encontrados ${result.articles.length} artículos`);
+
+      if (result.articles.length === 0) {
+        setSearchError(ERROR_MESSAGES.NO_RESULTS);
+        setSearchResults(null);
+        setDisplayedArticles([]);
+      } else {
+        const articlesWithKeyword = result.articles.map(article => ({
+          ...article,
+          keyword: searchTerm,
+          id: article.url
+        }));
+
+        setSearchResults(articlesWithKeyword);
+        const initialArticles = articlesWithKeyword.slice(0, APP_CONFIG.CARDS_PER_PAGE);
+        setDisplayedArticles(initialArticles);
+
+        localStorage.setItem(LOCAL_STORAGE_KEYS.SEARCH_RESULTS, JSON.stringify(articlesWithKeyword));
+        localStorage.setItem(LOCAL_STORAGE_KEYS.SEARCH_QUERY, searchTerm);
+      }
+    } catch (error) {
+      console.error('Error en búsqueda:', error);
+      setSearchError(ERROR_MESSAGES.API_ERROR);
+      setSearchResults(null);
+      setDisplayedArticles([]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleShowMore = () => {
+    if (!searchResults) return;
+    const currentCount = displayedArticles.length;
+    const nextArticles = searchResults.slice(0, currentCount + APP_CONFIG.CARDS_PER_PAGE);
+    setDisplayedArticles(nextArticles);
+  };
+
+  const handleSaveArticle = (article) => {
+    const articleToSave = {
+      ...article,
+      id: article.url,
+      savedAt: new Date().toISOString()
+    };
+
+    const updatedSavedArticles = [...savedArticles, articleToSave];
+    setSavedArticles(updatedSavedArticles);
+    localStorage.setItem(LOCAL_STORAGE_KEYS.ARTICLES, JSON.stringify(updatedSavedArticles));
+    console.log('Artículo guardado:', article.title);
+  };
+
+  const handleRemoveArticle = (article) => {
+    const updatedSavedArticles = savedArticles.filter(item => item.id !== article.id);
+    setSavedArticles(updatedSavedArticles);
+    localStorage.setItem(LOCAL_STORAGE_KEYS.ARTICLES, JSON.stringify(updatedSavedArticles));
+    console.log('Artículo eliminado:', article.title);
+  };
+
+  React.useEffect(() => {
+    const savedResults = localStorage.getItem(LOCAL_STORAGE_KEYS.SEARCH_RESULTS);
+    const savedQuery = localStorage.getItem(LOCAL_STORAGE_KEYS.SEARCH_QUERY);
+
+    if (savedResults && savedQuery) {
+      try {
+        const articles = JSON.parse(savedResults);
+        setSearchResults(articles);
+        setCurrentSearchQuery(savedQuery);
+        const initialArticles = articles.slice(0, APP_CONFIG.CARDS_PER_PAGE);
+        setDisplayedArticles(initialArticles);
+      } catch (error) {
+        console.error('Error cargando datos guardados:', error);
+      }
+    }
+
+    const savedArticlesData = localStorage.getItem(LOCAL_STORAGE_KEYS.ARTICLES);
+    if (savedArticlesData) {
+      try {
+        const articles = JSON.parse(savedArticlesData);
+        setSavedArticles(articles);
+      } catch (error) {
+        console.error('Error cargando artículos guardados:', error);
+      }
+    }
+
+    const testNewsApi = async () => {
+      try {
+        console.log('Probando conexión con News API...');
+        const result = await newsApi.searchNews('tecnología');
+        console.log('API funcionando! Artículos encontrados:', result.articles.length);
+      } catch (error) {
+        console.error('Error en API:', error.message);
+      }
+    };
+    testNewsApi();
+  }, []);
 
   const handleOpenLogin = () => {
     setActiveModal('login');
@@ -40,44 +156,6 @@ function App() {
 
   const handleRegisterSuccess = () => {
     setActiveModal('success');
-  };
-
-  // Función simulada de búsqueda (luego se conectará a la API)
-  const handleSearch = (searchTerm) => {
-    setIsLoading(true);
-
-    setTimeout(() => {
-      setSearchResults([
-        {
-          id: 1,
-          title: 'Resultado de búsqueda 1',
-          text: 'Este es un resultado de búsqueda simulado. Cuando conectemos la API, aquí aparecerán noticias reales.',
-          source: 'Fuente Simulada',
-          date: '2 de noviembre, 2024',
-          image: 'https://via.placeholder.com/400x272?text=Resultado+1',
-          keyword: searchTerm
-        },
-        {
-          id: 2,
-          title: 'Resultado de búsqueda 2',
-          text: 'Otro resultado de búsqueda simulado para demostrar la funcionalidad.',
-          source: 'Otra Fuente',
-          date: '1 de noviembre, 2024',
-          image: 'https://via.placeholder.com/400x272?text=Resultado+2',
-          keyword: searchTerm
-        },
-        {
-          id: 3,
-          title: 'Resultado de búsqueda 3',
-          text: 'Tercer resultado simulado del sistema de búsqueda.',
-          source: 'Tercera Fuente',
-          date: '31 de octubre, 2024',
-          image: 'https://via.placeholder.com/400x272?text=Resultado+3',
-          keyword: searchTerm
-        }
-      ]);
-      setIsLoading(false);
-    }, 2000);
   };
 
   return (
@@ -116,10 +194,22 @@ function App() {
               <Search onSearch={handleSearch} />
 
               {isLoading && <Preloader />}
-              {searchResults && !isLoading && (
+
+              {searchError && (
+                <div className="search-error">
+                  <p>{searchError}</p>
+                </div>
+              )}
+
+              {displayedArticles.length > 0 && !isLoading && (
                 <NewsCardList
-                  articles={searchResults}
+                  articles={displayedArticles}
                   isLoggedIn={false}
+                  onShowMore={handleShowMore}
+                  showButton={displayedArticles.length < (searchResults?.length || 0)}
+                  onSaveArticle={handleSaveArticle}
+                  onRemoveArticle={handleRemoveArticle}
+                  savedArticles={savedArticles}
                 />
               )}
 
