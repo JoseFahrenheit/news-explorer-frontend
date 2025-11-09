@@ -1,0 +1,92 @@
+.app {
+  width: 100%;
+  min-height: 100vh;
+  overflow-x: hidden;
+  position: relative;
+}
+
+.app__background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 656px;
+  z-index: 1;
+  overflow: hidden;
+}
+
+.app__bg-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+.header,
+.search {
+  position: relative;
+  z-index: 2;
+}
+
+.temp-content {
+  padding: 40px 20px;
+  text-align: center;
+  background: #1a1a1a;
+  color: white;
+  min-height: 200px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  z-index: 2;
+}
+
+.temp-content h1 {
+  font-size: 2.5em;
+  margin-bottom: 20px;
+  font-family: 'Roboto Slab', serif;
+}
+
+.temp-content p {
+  font-size: 1.2em;
+  font-family: 'Roboto', sans-serif;
+  max-width: 600px;
+  line-height: 1.6;
+}
+
+@media (max-width: 768px) {
+  .app__background {
+    height: 470px;
+  }
+
+  .temp-content {
+    padding: 30px 15px;
+  }
+
+  .temp-content h1 {
+    font-size: 2em;
+  }
+
+  .temp-content p {
+    font-size: 1.1em;
+  }
+}
+
+@media (max-width: 480px) {
+  .app__background {
+    height: 360px;
+  }
+
+  .temp-content {
+    padding: 20px 10px;
+  }
+
+  .temp-content h1 {
+    font-size: 1.5em;
+  }
+
+  .temp-content p {
+    font-size: 1em;
+  }
+}
