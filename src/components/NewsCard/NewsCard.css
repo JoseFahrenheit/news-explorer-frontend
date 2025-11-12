@@ -22,6 +22,14 @@
   object-fit: cover;
 }
 
+.saved-news__empty-title {
+  color:#000000;
+}
+
+.saved-news__empty-text {
+  color: #1A1B22;
+}
+
 .news-card__save-button {
   position: absolute;
   top: 24px;
@@ -50,7 +58,7 @@
 .news-card__save-icon {
   width: 24px;
   height: 24px;
-  transition: transform 0.2s ease;
+  object-fit: contain;
 }
 
 .news-card__save-button:not(:disabled):hover .news-card__save-icon {
@@ -141,6 +149,32 @@
   margin: 0;
   font-weight: 700;
   text-transform: uppercase;
+}
+
+.news-card__delete-button {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 8px;
+  background: #FFFFFF;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  padding: 0;
+}
+
+.news-card__delete-button:hover {
+  background: #F5F6F7;
+  transform: scale(1.05);
+}
+
+.news-card__delete-button:active {
+  transform: scale(0.95);
 }
 
 @media (max-width: 768px) {

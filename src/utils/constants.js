@@ -11,7 +11,7 @@ export const NEWS_API_CONFIG = {
   }
 };
 
-export const NEWS_API_KEY = '04d3f09e89e844a18dad4c1aceac935d';
+export const NEWS_API_KEY = import.meta.env.VITE_NEWS_API_KEY;
 
 export const ERROR_MESSAGES = {
   EMPTY_SEARCH: 'Por favor, introduzca una palabra clave',

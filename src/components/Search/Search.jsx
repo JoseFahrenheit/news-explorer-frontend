@@ -1,7 +1,6 @@
 import React from 'react';
 import './Search.css';
 
-// Solo importar las imágenes del search field
 import inputBackground from '../../images/Rectangle_2.png';
 import buttonBackground from '../../images/Rectangle_button_search.png';
 
@@ -21,7 +20,6 @@ const Search = ({ onSearch }) => {
 
   return (
     <section className="search">
-      {/* Contenido central */}
       <div className="search__content">
         <h1 className="search__title">
           ¿Qué está pasando en el mundo?
@@ -31,7 +29,6 @@ const Search = ({ onSearch }) => {
           Encuentra las últimas noticias sobre cualquier tema y guárdalas en tu cuenta personal.
         </p>
 
-        {/* Campo de búsqueda */}
         <form className="search__field" onSubmit={handleSubmit}>
           <div className="search__input-container">
             <img
