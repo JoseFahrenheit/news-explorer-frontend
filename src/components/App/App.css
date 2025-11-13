@@ -22,10 +22,14 @@
   object-position: center;
 }
 
-.header,
+.header {
+  position: relative;
+  z-index: 10;
+}
+
 .search {
   position: relative;
-  z-index: 2;
+  z-index: 1;
 }
 
 .temp-content {
@@ -39,7 +43,7 @@
   justify-content: center;
   align-items: center;
   position: relative;
-  z-index: 2;
+  z-index: 1;
 }
 
 .temp-content h1 {

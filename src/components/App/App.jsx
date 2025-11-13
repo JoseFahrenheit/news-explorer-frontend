@@ -96,6 +96,11 @@ function App() {
     console.log('Artículo eliminado:', article.title);
   };
 
+  const handleRemoveArticleFromSaved = (article) => {
+  console.log('Eliminando artículo desde SavedNews:', article.title);
+  handleRemoveArticle(article);
+  };
+
   React.useEffect(() => {
     const savedResults = localStorage.getItem(LOCAL_STORAGE_KEYS.SEARCH_RESULTS);
     const savedQuery = localStorage.getItem(LOCAL_STORAGE_KEYS.SEARCH_QUERY);
@@ -204,7 +209,7 @@ function App() {
               {displayedArticles.length > 0 && !isLoading && (
                 <NewsCardList
                   articles={displayedArticles}
-                  isLoggedIn={false}
+                  isLoggedIn={true}
                   onShowMore={handleShowMore}
                   showButton={displayedArticles.length < (searchResults?.length || 0)}
                   onSaveArticle={handleSaveArticle}
@@ -221,7 +226,7 @@ function App() {
           <Route path="/saved-news" element={
             <>
               <Header onLoginClick={handleOpenLogin} />
-              <SavedNews />
+              <SavedNews onRemoveArticle={handleRemoveArticleFromSaved} />
               <Footer />
             </>
           } />

@@ -1,29 +1,61 @@
 import React from 'react';
+import { useLocation } from 'react-router-dom';
 import { formatDate } from '../../utils/formatDate';
 import './NewsCard.css';
 import normalSaveIcon from '../../images/Normal_save.png';
 import saveHoverIcon from '../../images/Save.png';
 import savedIcon from '../../images/Saved.png';
+import trashIcon from '../../images/Trash.png';
+import deleteHoverIcon from '../../images/Delete.png';
 
 const NewsCard = ({ article, isLoggedIn, onSaveArticle, onRemoveArticle, isSaved }) => {
+  const location = useLocation();
   const data = article;
   const [isHovered, setIsHovered] = React.useState(false);
 
+  const isSavedNewsPage = location.pathname === '/saved-news';
+
   const handleSaveClick = () => {
-    if (isSaved) {
+    if (isSavedNewsPage) {
       onRemoveArticle(data);
     } else {
-      onSaveArticle(data);
+      if (isSaved) {
+        onRemoveArticle(data);
+      } else {
+        onSaveArticle(data);
+      }
     }
   };
 
-  const getSaveIcon = () => {
-    if (isSaved) {
-      return savedIcon;
-    } else if (isHovered) {
-      return saveHoverIcon;
+  const getActionIcon = () => {
+    if (isSavedNewsPage) {
+      return isHovered ? deleteHoverIcon : trashIcon;
     } else {
-      return normalSaveIcon;
+      if (isSaved) {
+        return savedIcon;
+      } else if (isHovered) {
+        return saveHoverIcon;
+      } else {
+        return normalSaveIcon;
+      }
+    }
+  };
+
+  const getTooltipText = () => {
+    if (isSavedNewsPage) {
+      return 'Eliminar artículo';
+    } else {
+      return isLoggedIn ?
+        (isSaved ? 'Eliminar de guardados' : 'Guardar artículo') :
+        'Inicia sesión para guardar artículos';
+    }
+  };
+
+  const getButtonClass = () => {
+    if (isSavedNewsPage) {
+      return 'news-card__delete-button';
+    } else {
+      return `news-card__save-button ${isSaved ? 'news-card__save-button_saved' : ''}`;
     }
   };
 
@@ -39,26 +71,23 @@ const NewsCard = ({ article, isLoggedIn, onSaveArticle, onRemoveArticle, isSaved
       />
 
       <button
-        className={`news-card__save-button ${isSaved ? 'news-card__save-button_saved' : ''}`}
+        className={getButtonClass()}
         type="button"
-        aria-label={isSaved ? 'Eliminar de guardados' : 'Guardar noticia'}
+        aria-label={isSavedNewsPage ? 'Eliminar artículo' : (isSaved ? 'Eliminar de guardados' : 'Guardar noticia')}
         onClick={handleSaveClick}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
-        disabled={!isLoggedIn}
+        disabled={!isSavedNewsPage && !isLoggedIn}
       >
         <img
-          src={getSaveIcon()}
-          alt={isSaved ? 'Artículo guardado' : 'Guardar artículo'}
+          src={getActionIcon()}
+          alt={isSavedNewsPage ? 'Eliminar artículo' : (isSaved ? 'Artículo guardado' : 'Guardar artículo')}
           className="news-card__save-icon"
         />
       </button>
 
       <div className="news-card__tooltip">
-        {isLoggedIn ?
-          (isSaved ? 'Eliminar de guardados' : 'Guardar artículo') :
-          'Inicia sesión para guardar artículos'
-        }
+        {getTooltipText()}
       </div>
 
       <div className="news-card__keyword">
