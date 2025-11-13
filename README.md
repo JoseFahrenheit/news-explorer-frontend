@@ -1,7 +1,9 @@
-📰 News Explorer
+## 📰 News Explorer
+
 Una aplicación web full-stack moderna para buscar y guardar noticias de todo el mundo. Desarrollada con React en el frontend y una API personalizada en el backend.
 
-🚀 Características
+## 🚀 Características
+
 Frontend
 Búsqueda en tiempo real de noticias usando News API
 
@@ -21,7 +23,8 @@ Preloader durante las búsquedas
 
 Manejo de errores con mensajes descriptivos
 
-🛠️ Tecnologías Utilizadas
+## 🛠️ Tecnologías Utilizadas
+
 Frontend
 https://img.shields.io/badge/React-18.2.0-61DAFB?logo=react
 
@@ -31,7 +34,8 @@ https://img.shields.io/badge/Vite-5.0.0-646CFF?logo=vite
 
 https://img.shields.io/badge/CSS3-1572B6?logo=css3
 
-📱 Responsive Design
+## 📱 Responsive Design
+
 La aplicación está optimizada para todos los dispositivos:
 
 Desktop (1024px+)
@@ -57,7 +61,8 @@ Grid de 1 columna para tarjetas
 
 Formularios apilados verticalmente
 
-🎯 Funcionalidades Principales
+## 🎯 Funcionalidades Principales
+
 Búsqueda de Noticias
 Búsqueda por palabras clave
 
@@ -84,3 +89,13 @@ Tooltips informativos
 Estados hover en elementos interactivos
 
 Mensajes de feedback al usuario
+
+## 🌐 Demo en Vivo
+
+La aplicación está desplegada en Netlify:
+
+- **🔗 [Ver aplicación desplegada](https://cool-seahorse-33dedd.netlify.app/)**
+
+### Estado del Despliegue
+
+[![Netlify Status](https://api.netlify.com/api/v1/badges/COOL-SEAHORSE-33DEDD/deploy-status)](https://app.netlify.com/sites/cool-seahorse-33dedd/deploys)
