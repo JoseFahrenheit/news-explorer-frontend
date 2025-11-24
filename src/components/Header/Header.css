@@ -20,6 +20,14 @@
   z-index: 3;
 }
 
+.header_white {
+  background-color: white;
+}
+
+.header_white::after {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
 .header__logo {
   font-family: 'Roboto Slab', serif;
   font-weight: bold;
@@ -27,12 +35,22 @@
   line-height: 24px;
   color: white;
   min-width: 200px;
+  text-decoration: none;
+  z-index: 1003;
+}
+
+.header__logo_black {
+  color: #1A1B22;
 }
 
 .header__nav {
   display: flex;
   align-items: center;
   gap: 20px;
+}
+
+.header__nav_white {
+  background-color: white;
 }
 
 .header__link {
@@ -51,6 +69,14 @@
 
 .header__link:hover {
   opacity: 0.8;
+}
+
+.header__link_black {
+  color: #1A1B22;
+}
+
+.header__link_black:hover {
+  opacity: 0.7;
 }
 
 .header__underline {
@@ -74,6 +100,25 @@
   transform: scale(1.05);
 }
 
+.header__logout-btn {
+  position: relative;
+  background: none;
+  border: none;
+  cursor: pointer;
+  width: auto;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 0 15px;
+  transition: transform 0.2s ease;
+}
+
+.header__logout-btn:hover {
+  transform: scale(1.05);
+}
+
 .header__btn-bg {
   position: absolute;
   width: 100%;
@@ -90,17 +135,35 @@
   z-index: 1;
 }
 
+.header__btn-text_black {
+  color: #1A1B22;
+}
+
+.header__username {
+  font-family: 'Roboto', sans-serif;
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 24px;
+  color: white;
+  position: relative;
+  z-index: 1;
+}
+
+.header__username_black {
+  color: #1A1B22;
+}
+
 .header__mobile-menu-button {
   display: none;
   background: none;
   border: none;
   cursor: pointer;
   padding: 8px;
+  z-index: 1003;
 }
 
-.header__mobile-menu-button img {
-  width: 24px;
-  height: 24px;
+.header__mobile-menu-button_black img {
+  filter: brightness(0);
 }
 
 .header__mobile-overlay {
@@ -137,11 +200,20 @@
     height: 40px;
   }
 
+  .header__logout-btn {
+    height: 40px;
+    padding: 0 12px;
+  }
+
   .header__btn-text {
     font-family: 'Roboto', sans-serif;
     font-weight: 500;
     font-size: 16px;
     line-height: 24px;
+  }
+
+  .header__username {
+    font-size: 16px;
   }
 }
 
@@ -184,6 +256,10 @@
     right: 0;
   }
 
+  .header__nav_white {
+    background: white;
+  }
+
   .header__mobile-overlay {
     display: block;
     z-index: 1001;
@@ -200,6 +276,10 @@
     position: relative;
   }
 
+  .header__link_black {
+    color: #1A1B22;
+  }
+
   .header__underline {
     display: none;
   }
@@ -212,7 +292,21 @@
     position: relative;
   }
 
+  .header__logout-btn {
+    width: 100%;
+    height: 56px;
+    margin-top: 10px;
+    z-index: 1003;
+    position: relative;
+    justify-content: flex-start;
+    padding: 0 16px;
+  }
+
   .header__btn-text {
+    font-size: 18px;
+  }
+
+  .header__username {
     font-size: 18px;
   }
 }
@@ -240,7 +334,15 @@
     height: 48px;
   }
 
+  .header__logout-btn {
+    height: 48px;
+  }
+
   .header__btn-text {
+    font-size: 16px;
+  }
+
+  .header__username {
     font-size: 16px;
   }
 }

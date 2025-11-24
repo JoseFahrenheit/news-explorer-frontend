@@ -10,7 +10,10 @@ import Register from '../Register/Register';
 import SuccessPopup from '../SuccessPopup/SuccessPopup';
 import NewsCardList from '../NewsCardList/NewsCardList';
 import Preloader from '../Preloader/Preloader';
+import ProtectedRoute from '../ProtectedRoute/ProtectedRoute';
 import newsApi from '../../utils/NewsApi';
+import mainApi from '../../utils/MainApi';
+import CurrentUserContext from '../../contexts/CurrentUserContext';
 import { ERROR_MESSAGES, LOCAL_STORAGE_KEYS, APP_CONFIG } from '../../utils/constants';
 import './App.css';
 import backgroundImage from '../../images/georgia-de-lotz--UsJoNxLaNo-unsplash.png';
@@ -23,6 +26,67 @@ function App() {
   const [displayedArticles, setDisplayedArticles] = React.useState([]);
   const [currentSearchQuery, setCurrentSearchQuery] = React.useState('');
   const [savedArticles, setSavedArticles] = React.useState([]);
+  const [currentUser, setCurrentUser] = React.useState(null);
+  const [authError, setAuthError] = React.useState('');
+
+  React.useEffect(() => {
+    const token = localStorage.getItem('jwt');
+    if (token) {
+      mainApi.checkToken()
+        .then(userData => {
+          setCurrentUser(userData);
+          loadSavedArticles();
+        })
+        .catch(err => {
+          console.error('Error verificando token:', err);
+          localStorage.removeItem('jwt');
+        });
+    }
+  }, []);
+
+  const loadSavedArticles = () => {
+    mainApi.getSavedArticles()
+      .then(articles => {
+        setSavedArticles(articles);
+      })
+      .catch(err => console.error('Error cargando artículos:', err));
+  };
+
+  const handleRegister = async (formData) => {
+    try {
+      setAuthError('');
+      await mainApi.register(formData);
+      return true;
+    } catch (error) {
+      setAuthError('Error en el registro. Intenta nuevamente.');
+      return false;
+    }
+  };
+
+  const handleLogin = async (formData) => {
+    try {
+      setAuthError('');
+      const data = await mainApi.login(formData);
+
+      localStorage.setItem('jwt', data.token);
+      const userData = await mainApi.checkToken();
+
+      setCurrentUser(userData);
+      await loadSavedArticles();
+      setActiveModal(null);
+      setAuthError('');
+      return true;
+    } catch (error) {
+      setAuthError('Credenciales incorrectas. Intenta nuevamente.');
+      return false;
+    }
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('jwt');
+    setCurrentUser(null);
+    setSavedArticles([]);
+  };
 
   const handleSearch = async (searchTerm) => {
     if (!searchTerm.trim()) {
@@ -76,29 +140,54 @@ function App() {
     setDisplayedArticles(nextArticles);
   };
 
-  const handleSaveArticle = (article) => {
+const handleSaveArticle = async (article) => {
+  if (!currentUser) {
+    setActiveModal('login');
+    return;
+  }
+
+  try {
     const articleToSave = {
-      ...article,
-      id: article.url,
-      savedAt: new Date().toISOString()
+      keyword: article.keyword || currentSearchQuery || 'general',
+      title: article.title || 'Sin título',
+      text: article.description || article.content || 'Descripción no disponible',
+      date: article.publishedAt || new Date().toISOString(),
+      source: article.source?.name || 'Fuente desconocida',
+      link: article.url || '#',
+      image: article.urlToImage || ''
     };
 
-    const updatedSavedArticles = [...savedArticles, articleToSave];
-    setSavedArticles(updatedSavedArticles);
-    localStorage.setItem(LOCAL_STORAGE_KEYS.ARTICLES, JSON.stringify(updatedSavedArticles));
-    console.log('Artículo guardado:', article.title);
-  };
+    console.log('Guardando artículo...');
+    const savedArticle = await mainApi.saveArticle(articleToSave);
+    console.log('Artículo guardado:', savedArticle);
 
-  const handleRemoveArticle = (article) => {
-    const updatedSavedArticles = savedArticles.filter(item => item.id !== article.id);
-    setSavedArticles(updatedSavedArticles);
-    localStorage.setItem(LOCAL_STORAGE_KEYS.ARTICLES, JSON.stringify(updatedSavedArticles));
-    console.log('Artículo eliminado:', article.title);
+    setSavedArticles(prev => {
+      const newArticles = [...prev, savedArticle];
+      console.log('Nuevos savedArticles:', newArticles);
+      return newArticles;
+    });
+
+  } catch (error) {
+    console.error('Error guardando artículo:', error);
+  }
+};
+
+  const handleRemoveArticle = async (article) => {
+    try {
+      await mainApi.deleteArticle(article._id || article.id);
+      const updatedSavedArticles = savedArticles.filter(item =>
+        item._id !== (article._id || article.id)
+      );
+      setSavedArticles(updatedSavedArticles);
+      console.log('Artículo eliminado del backend:', article.title);
+    } catch (error) {
+      console.error('Error eliminando artículo:', error);
+    }
   };
 
   const handleRemoveArticleFromSaved = (article) => {
-  console.log('Eliminando artículo desde SavedNews:', article.title);
-  handleRemoveArticle(article);
+    console.log('Eliminando artículo desde SavedNews:', article.title);
+    handleRemoveArticle(article);
   };
 
   React.useEffect(() => {
@@ -117,13 +206,17 @@ function App() {
       }
     }
 
-    const savedArticlesData = localStorage.getItem(LOCAL_STORAGE_KEYS.ARTICLES);
-    if (savedArticlesData) {
-      try {
-        const articles = JSON.parse(savedArticlesData);
-        setSavedArticles(articles);
-      } catch (error) {
-        console.error('Error cargando artículos guardados:', error);
+    if (currentUser) {
+      loadSavedArticles();
+    } else {
+      const savedArticlesData = localStorage.getItem(LOCAL_STORAGE_KEYS.ARTICLES);
+      if (savedArticlesData) {
+        try {
+          const articles = JSON.parse(savedArticlesData);
+          setSavedArticles(articles);
+        } catch (error) {
+          console.error('Error cargando artículos guardados:', error);
+        }
       }
     }
 
@@ -137,26 +230,31 @@ function App() {
       }
     };
     testNewsApi();
-  }, []);
+  }, [currentUser]);
 
   const handleOpenLogin = () => {
     setActiveModal('login');
+    setAuthError('');
   };
 
   const handleOpenRegister = () => {
     setActiveModal('register');
+    setAuthError('');
   };
 
   const handleCloseModal = () => {
     setActiveModal(null);
+    setAuthError('');
   };
 
   const handleSwitchToRegister = () => {
     setActiveModal('register');
+    setAuthError('');
   };
 
   const handleSwitchToLogin = () => {
     setActiveModal('login');
+    setAuthError('');
   };
 
   const handleRegisterSuccess = () => {
@@ -164,75 +262,92 @@ function App() {
   };
 
   return (
-    <Router>
-      <div className="app">
-        <Login
-          isOpen={activeModal === 'login'}
-          onClose={handleCloseModal}
-          onSwitchToRegister={handleSwitchToRegister}
-        />
+    <CurrentUserContext.Provider value={{ currentUser, setCurrentUser }}>
+      <Router>
+        <div className="app">
+          <Login
+            isOpen={activeModal === 'login'}
+            onClose={handleCloseModal}
+            onSwitchToRegister={handleSwitchToRegister}
+            onLogin={handleLogin}
+            authError={authError}
+          />
 
-        <Register
-          isOpen={activeModal === 'register'}
-          onClose={handleCloseModal}
-          onSwitchToLogin={handleSwitchToLogin}
-          onSuccess={handleRegisterSuccess}
-        />
+          <Register
+            isOpen={activeModal === 'register'}
+            onClose={handleCloseModal}
+            onSwitchToLogin={handleSwitchToLogin}
+            onRegister={handleRegister}
+            onSuccess={handleRegisterSuccess}
+            authError={authError}
+          />
 
-        <SuccessPopup
-          isOpen={activeModal === 'success'}
-          onClose={handleCloseModal}
-          onSwitchToLogin={handleSwitchToLogin}
-        />
+          <SuccessPopup
+            isOpen={activeModal === 'success'}
+            onClose={handleCloseModal}
+            onSwitchToLogin={handleSwitchToLogin}
+          />
 
-        <Routes>
-          <Route path="/" element={
-            <>
-              <div className="app__background">
-                <img
-                  src={backgroundImage}
-                  alt="Fondo decorativo"
-                  className="app__bg-image"
-                />
-              </div>
-              <Header onLoginClick={handleOpenLogin} />
-              <Search onSearch={handleSearch} />
-
-              {isLoading && <Preloader />}
-
-              {searchError && (
-                <div className="search-error">
-                  <p>{searchError}</p>
+          <Routes>
+            <Route path="/" element={
+              <>
+                <div className="app__background">
+                  <img
+                    src={backgroundImage}
+                    alt="Fondo decorativo"
+                    className="app__bg-image"
+                  />
                 </div>
-              )}
+                <Header
+                  onLoginClick={handleOpenLogin}
+                  onLogout={handleLogout}
+                  currentUser={currentUser}
+                />
+                <Search onSearch={handleSearch} />
 
-              {displayedArticles.length > 0 && !isLoading && (
-                <NewsCardList
-                  articles={displayedArticles}
-                  isLoggedIn={true}
-                  onShowMore={handleShowMore}
-                  showButton={displayedArticles.length < (searchResults?.length || 0)}
-                  onSaveArticle={handleSaveArticle}
-                  onRemoveArticle={handleRemoveArticle}
+                {isLoading && <Preloader />}
+
+                {searchError && (
+                  <div className="search-error">
+                    <p>{searchError}</p>
+                  </div>
+                )}
+
+                {displayedArticles.length > 0 && !isLoading && (
+                  <NewsCardList
+                    articles={displayedArticles}
+                    isLoggedIn={!!currentUser}
+                    onShowMore={handleShowMore}
+                    showButton={displayedArticles.length < (searchResults?.length || 0)}
+                    onSaveArticle={handleSaveArticle}
+                    onRemoveArticle={handleRemoveArticle}
+                    savedArticles={savedArticles}
+                  />
+                )}
+
+                <About />
+                <Footer />
+              </>
+            } />
+
+            <Route path="/saved-news" element={
+              <ProtectedRoute currentUser={currentUser}>
+                <Header
+                  onLoginClick={handleOpenLogin}
+                  onLogout={handleLogout}
+                  currentUser={currentUser}
+                />
+                <SavedNews
+                  onRemoveArticle={handleRemoveArticleFromSaved}
                   savedArticles={savedArticles}
                 />
-              )}
-
-              <About />
-              <Footer />
-            </>
-          } />
-
-          <Route path="/saved-news" element={
-            <>
-              <Header onLoginClick={handleOpenLogin} />
-              <SavedNews onRemoveArticle={handleRemoveArticleFromSaved} />
-              <Footer />
-            </>
-          } />
-        </Routes>
-      </div>
-    </Router>
+                <Footer />
+              </ProtectedRoute>
+            } />
+          </Routes>
+        </div>
+      </Router>
+    </CurrentUserContext.Provider>
   );
 }
 

@@ -8,19 +8,49 @@ import savedIcon from '../../images/Saved.png';
 import trashIcon from '../../images/Trash.png';
 import deleteHoverIcon from '../../images/Delete.png';
 
-const NewsCard = ({ article, isLoggedIn, onSaveArticle, onRemoveArticle, isSaved }) => {
+const NewsCard = ({ article, isLoggedIn, onSaveArticle, onRemoveArticle, savedArticles }) => {
   const location = useLocation();
   const data = article;
   const [isHovered, setIsHovered] = React.useState(false);
 
   const isSavedNewsPage = location.pathname === '/saved-news';
 
+  console.log('=== NEWS CARD DEBUG ===');
+  console.log('Article:', article);
+  console.log('Saved articles count:', savedArticles?.length);
+  console.log('Is saved news page:', isSavedNewsPage);
+
+  const isSaved = React.useMemo(() => {
+    console.log('Calculando isSaved...');
+
+    if (isSavedNewsPage) return true;
+    if (!savedArticles || savedArticles.length === 0) return false;
+
+    const currentUrl = article.url || article.link;
+    const isArticleSaved = savedArticles.some(savedArticle =>
+      savedArticle.url === currentUrl || savedArticle.link === currentUrl
+    );
+
+    console.log('URL actual:', currentUrl);
+    console.log('¿Está guardado?:', isArticleSaved);
+
+    return isArticleSaved;
+  }, [savedArticles, article, isSavedNewsPage]);
+
+  console.log('Resultado final isSaved:', isSaved);
+
   const handleSaveClick = () => {
+    console.log('Click en botón - isSaved:', isSaved);
+
     if (isSavedNewsPage) {
       onRemoveArticle(data);
     } else {
       if (isSaved) {
-        onRemoveArticle(data);
+        const currentUrl = article.url || article.link;
+        const savedArticle = savedArticles.find(item =>
+          item.url === currentUrl || item.link === currentUrl
+        );
+        onRemoveArticle(savedArticle || data);
       } else {
         onSaveArticle(data);
       }
@@ -62,7 +92,7 @@ const NewsCard = ({ article, isLoggedIn, onSaveArticle, onRemoveArticle, isSaved
   return (
     <article className="news-card">
       <img
-        src={data.urlToImage}
+        src={data.urlToImage || data.image}
         alt={data.title}
         className="news-card__image"
         onError={(e) => {
@@ -90,15 +120,17 @@ const NewsCard = ({ article, isLoggedIn, onSaveArticle, onRemoveArticle, isSaved
         {getTooltipText()}
       </div>
 
-      <div className="news-card__keyword">
-        {data.keyword || 'noticias'}
-      </div>
+      {!isSavedNewsPage && (
+        <div className="news-card__keyword">
+          {data.keyword || 'noticias'}
+        </div>
+      )}
 
       <div className="news-card__content">
-        <p className="news-card__date">{formatDate(data.publishedAt)}</p>
+        <p className="news-card__date">{formatDate(data.publishedAt || data.date)}</p>
         <h3 className="news-card__title">{data.title}</h3>
-        <p className="news-card__text">{data.description}</p>
-        <p className="news-card__source">{data.source.name}</p>
+        <p className="news-card__text">{data.description || data.text}</p>
+        <p className="news-card__source">{data.source?.name || data.source}</p>
       </div>
     </article>
   );
