@@ -1,42 +1,40 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import SavedNewsHeader from '../SavedNewsHeader/SavedNewsHeader';
 import NewsCardList from '../NewsCardList/NewsCardList';
+import CurrentUserContext from '../../contexts/CurrentUserContext';
 import './SavedNews.css';
 
-const SavedNews = ({ onRemoveArticle }) => {
-  const savedArticlesData = localStorage.getItem('newsExplorer_articles');
-  const [savedArticles, setSavedArticles] = React.useState(
-    savedArticlesData ? JSON.parse(savedArticlesData) : []
-  );
+const SavedNews = ({ onRemoveArticle, savedArticles }) => {
+  const { currentUser } = useContext(CurrentUserContext);
+
+  const getTopKeywords = () => {
+    const keywordCount = {};
+
+    savedArticles.forEach(article => {
+      const keyword = article.keyword;
+      keywordCount[keyword] = (keywordCount[keyword] || 0) + 1;
+    });
+
+    const sortedKeywords = Object.keys(keywordCount).sort(
+      (a, b) => keywordCount[b] - keywordCount[a]
+    );
+
+    return sortedKeywords;
+  };
+
+  const keywords = getTopKeywords();
 
   const handleRemoveArticle = (article) => {
     console.log('Eliminando artículo en SavedNews:', article.title);
-
-    if (onRemoveArticle) {
-      onRemoveArticle(article);
-    }
-
-    const updatedArticles = savedArticles.filter(item => item.id !== article.id);
-    setSavedArticles(updatedArticles);
-
-    console.log('Artículo eliminado localmente. Total restante:', updatedArticles.length);
+    onRemoveArticle(article);
   };
-
-  React.useEffect(() => {
-    const savedArticlesData = localStorage.getItem('newsExplorer_articles');
-    if (savedArticlesData) {
-      const articles = JSON.parse(savedArticlesData);
-      setSavedArticles(articles);
-    }
-  }, []);
-
-  const keywords = [...new Set(savedArticles.map(article => article.keyword))].slice(0, 3);
 
   return (
     <div className="saved-news">
       <SavedNewsHeader
         savedArticlesCount={savedArticles.length}
         keywords={keywords}
+        userName={currentUser?.name}
       />
 
       {savedArticles.length > 0 ? (
@@ -47,6 +45,7 @@ const SavedNews = ({ onRemoveArticle }) => {
           onSaveArticle={() => {}}
           onRemoveArticle={handleRemoveArticle}
           savedArticles={savedArticles}
+          isSavedNewsPage={true}
         />
       ) : (
         <div className="saved-news__empty">

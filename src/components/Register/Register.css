@@ -41,6 +41,36 @@
   background-color: white;
 }
 
+.register__input_error {
+  border-bottom-color: #FF0000 !important;
+}
+
+.register__error {
+  color: #FF0000;
+  font-family: 'Inter', sans-serif;
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 14px;
+  margin-top: 5px;
+  display: block;
+  position: absolute;
+  bottom: -20px;
+  left: 0;
+}
+
+.register__auth-error {
+  color: #FF0000;
+  font-family: 'Inter', sans-serif;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 17px;
+  text-align: center;
+  margin: 10px 0 20px 0;
+  padding: 10px;
+  background-color: rgba(255, 0, 0, 0.05);
+  border-radius: 4px;
+}
+
 .register__button {
   position: relative;
   width: 100%;
@@ -73,6 +103,11 @@
 .register__button:not(.register__button_disabled):hover {
   background-color: #1A5BD5;
   transform: scale(1.02);
+}
+
+.register__button_disabled:hover {
+  transform: none !important;
+  background-color: #D1D2D6 !important;
 }
 
 .register__switch {
